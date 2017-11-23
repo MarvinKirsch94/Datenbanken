@@ -1,5 +1,8 @@
 package zettel2.group41.logistikDB_Verwaltung;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,7 +17,9 @@ public class Main {
     private static final String driver = "oracle.jdbc.driver.OracleDriver";
     private static final String protocol = "jdbc:oracle:thin:@"; //Oracle protocol String
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         //driver
         System.out.println("Hello");
@@ -58,6 +63,46 @@ public class Main {
         } else {
 
             System.out.println("Failed to make connection!");
+        }
+
+        while(true) {
+
+            //Display Menu
+            System.out.println("DB Operation Manager" + "\n<----------------------------->\n");
+            System.out.println("(A)  Anzeige aller Artikel.");
+            System.out.println("(B)  Anzeige aller Lager.");
+            System.out.println("(C)  Anzeige aller Kunden.");
+            System.out.println("(D)  Stammdaten zu Artnr. sowie Laberbestand und Summe dieser.");
+            System.out.println("(E)  Erfassung eines neuen Lagerbestands eines Artikels.");
+            System.out.println("(F)  Update der Menge eines ausgewählten Lagerbestands.");
+            System.out.println("(insert) Erweitert sofern moeglich die Datenbank mit den \nin ARTIKEL.csv vorhandenen Daten.");
+
+            String in;
+
+            JDBC_Insert ji = new JDBC_Insert();
+
+            switch (in = br.readLine()) {
+                case "A":
+                    break;
+                case "B":
+                    break;
+                case "C":
+                    break;
+                case "D":
+                    break;
+                case "E":
+                    break;
+                case "F":
+                    break;
+                case "insert":
+
+                    ji.readFromCSV(JDBC_Insert.getFileLocation());
+
+                    ji.writeToDB(connection);
+                    break;
+                default:
+                    return;
+            }
         }
     }
 }
