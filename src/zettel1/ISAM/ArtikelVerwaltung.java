@@ -1,5 +1,5 @@
 
-package ISAM;
+package zettel1.ISAM;
 
 
 

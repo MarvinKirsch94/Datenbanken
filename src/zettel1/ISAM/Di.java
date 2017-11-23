@@ -3,17 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ISAM;
+package zettel1.ISAM;
 
 import java.io.Serializable;
 
-
-    public class Artikel implements Serializable{
-        
-        
-        String artbez;
-        String artme;
-        String artgr;
-        int artnr;
-        double preis;
-    }
+  public class Di implements Serializable{
+        int  artnr ;
+        long offset;
+    }  
+    
+    

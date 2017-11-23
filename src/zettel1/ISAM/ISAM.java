@@ -1,4 +1,4 @@
-package ISAM;
+package zettel1.ISAM;
 import java.io.*;
 public class ISAM {
 
