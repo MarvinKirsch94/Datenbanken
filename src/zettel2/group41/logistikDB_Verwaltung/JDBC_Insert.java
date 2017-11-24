@@ -123,13 +123,12 @@ public class JDBC_Insert {
         return !localError;
     }
 
-    public boolean writeToDB(Connection connection) {
+    public boolean writeToDB(Connection connection) throws SQLException {
 
         try {
-            String SQL_INSERT = "INSERT INTO ARTIKEL (ARTNR, ARTBEZ, MGE, PREIS, STEU, EDAT) VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement st = connection.prepareStatement(SQL_INSERT);
-            Statement st1 = connection.createStatement();
-            int n = 0;
+            //String SQL_INSERT = "INSERT INTO ARTIKEL (ARTNR, ARTBEZ, MGE, PREIS, STEU, EDAT) VALUES (?, ?, ?, ?, ?, ?)";
+            //PreparedStatement st = connection.prepareStatement(SQL_INSERT);
+            Statement st = connection.createStatement();
 
             for(Artikel a : artikel) {
 
@@ -139,24 +138,26 @@ public class JDBC_Insert {
                 String s4 = "'" + (a.getPreis() + "").replace(".", ",") + "'";
                 String s5 = "'" + (a.getSteu() + "").replace(".", ",") + "'";
                 String s6 = "TO_DATE('" + dateFormatWrite.format(a.getEdat()) + "','YYYY-MM-DD')";
-
+                /*
                 st.setString(1, s1);
                 st.setString(2, s2);
                 st.setString(3, s3);
                 st.setString(4, s4);
                 st.setString(5, s5);
                 st.setString(6, s6);
-                System.out.println("INSERT INTO ARTIKEL (ARTNR, ARTBEZ, MGE, PREIS, STEU, EDAT) VALUES (" + s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5 + ", " + s6 + ")");
-                st.addBatch();
-                st.executeBatch();
-                break;
+                st1.executeUpdate("INSERT INTO ARTIKEL (ARTNR, ARTBEZ, MGE, PREIS, STEU, EDAT) VALUES (" + s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5 + ", " + s6 + ")");
+                */
+                String query = "INSERT INTO ARTIKEL (ARTNR, ARTBEZ, MGE, PREIS, STEU, EDAT) VALUES (" + s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5 + ", " + s6 + ")";
+                System.out.println(query);
+
+                st.addBatch(query);
             }
 
-            //int all[] = st.executeBatch();
-            //int n = 0;
-            //for(int i : all) {
-            //    n += i;
-            //}
+            int all[] = st.executeBatch();
+            int n = 0;
+            for(int i : all) {
+                n += i;
+            }
 
             System.out.println("-> " + n + " Eintraege wurden erfolgreich angelegt.");
 
