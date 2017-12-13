@@ -21,6 +21,8 @@ public class Main {
 
         while(true) {
 
+            //TODO Erfassung einer Kundenbestellung
+
             //Display Menu
             System.out.println("DB Operation Manager" + "\n<----------------------------->\n");
             System.out.println("(A)  Anzeige aller Artikel.");
@@ -34,19 +36,36 @@ public class Main {
             String in;
 
             JDBC_Insert ji = new JDBC_Insert();
+            JDBC_Verwaltung jv = new JDBC_Verwaltung();
 
             switch (in = br.readLine()) {
                 case "A":
+
+                    jv.showAllArtikel(connection);
                     break;
                 case "B":
+
+                    jv.showAllLager(connection);
                     break;
                 case "C":
+
+                    jv.showAllKunde(connection);
                     break;
                 case "D":
+
+                    System.out.println("Geben sie eine Artikelnr ein zu der sie nähere Informationen wünschen: \n");
+
+                    int artnr = Integer.parseInt(br.readLine());
+
+                    jv.showArtDetailsAndLagerbestand(connection, artnr);
                     break;
                 case "E":
+
+                    jv.setNewLagerbestandForArtikel(connection);
                     break;
                 case "F":
+
+                    jv.updateMgeOfLagerbestand(connection);
                     break;
                 case "insert":
 
