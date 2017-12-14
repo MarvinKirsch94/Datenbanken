@@ -24,7 +24,7 @@ public class Main {
 
         while(true) {
 
-            //TODO Erfassung einer Kundenbestellung
+            //Erfassung einer Kundenbestellung
 
             //Display Menu
             System.out.println("DB Operation Manager" + "\n<----------------------------->\n");
@@ -95,8 +95,6 @@ public class Main {
                     break;
                 case "kb":
 
-                    //TODO aufgabe 6
-                    //a)
                     System.out.println("Geben sie die Daten für die Bestellung ein.");
                     System.out.println("Geben sie die artnr ein: ");
                     int x = Integer.parseInt(br.readLine());
@@ -104,7 +102,7 @@ public class Main {
                     int y = Integer.parseInt(br.readLine());
                     System.out.println("Geben sie die bmenge ein: ");
                     int z = Integer.parseInt(br.readLine());
-                    //b)
+
                     long s1 = jv.showArtDetailsAndLagerbestand(connection, x);
 
                     if(z <= s1) {
