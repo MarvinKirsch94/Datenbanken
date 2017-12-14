@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -27,15 +28,19 @@ public class JDBC_Bestellung {
     private double rbet;
     //private int s1;
 
-    private SimpleDateFormat dateFormatWrite = new SimpleDateFormat("dd.MM.YYYY - HH.mm.ss");
+    private static SimpleDateFormat dateFormatWrite = new SimpleDateFormat("dd.MM.YYYY HH:mm:ss");
 
     public JDBC_Bestellung(int knr, int artnr, int bmenge, double rbet) {
         this.knr = knr;
         this.artnr = artnr;
         this.bmenge = bmenge;
         this.rbet = rbet;
-        this.bdat = dateFormatWrite.format(LocalDateTime.now().toString());
-        this.ldat = dateFormatWrite.format(LocalDateTime.now().plusDays(14).toString());
+        LocalDateTime ldtn = LocalDateTime.now();
+        LocalDateTime ldtl = LocalDateTime.now().plusDays(14);
+        Date dn = Date.from(ldtn.atZone(ZoneId.systemDefault()).toInstant());
+        Date dl = Date.from(ldtl.atZone(ZoneId.systemDefault()).toInstant());
+        this.bdat = dateFormatWrite.format(dn);
+        this.ldat = dateFormatWrite.format(dl);
     }
 
     public static void buchen(Connection connection, int artnr, int knr, int bmenge) {
@@ -51,7 +56,7 @@ public class JDBC_Bestellung {
 
             Statement st = connection.createStatement();
 
-            String query = "SELECT BSTNR, MENGE FROM LAGERBESTAND WHERE ARTNR = " + artnr;
+            String query = "SELECT BSTNR, MENGE, LNR FROM LAGERBESTAND WHERE ARTNR = " + artnr;
 
             ResultSet rs = st.executeQuery(query);
 
@@ -66,9 +71,13 @@ public class JDBC_Bestellung {
                 lb.add(l);
             }
 
-            int abmenge = menge;
+            int abmenge = bmenge;
 
             for(int i = 0; i < lb.size(); i++) {
+
+                if(abmenge == 0) {
+                    break;
+                }
 
                 int temp = lb.get(i).getMenge();
                 if(abmenge > temp) {
@@ -81,38 +90,48 @@ public class JDBC_Bestellung {
                     lb.get(i).setMenge(lb.get(i).getMenge() - abmenge);
                     abmenge = 0;
                 }
-
+                System.out.println(lb.get(i).getMenge());
                 Statement stu = connection.createStatement();
 
                 String queryu = "UPDATE LAGERBESTAND SET MENGE = " + lb.get(i).getMenge() + "WHERE BSTNR = " + lb.get(i).getBstnr();
 
-                st.executeUpdate(query);
+                stu.executeUpdate(queryu);
             }
 
             Statement sts = connection.createStatement();
             String querys = "SELECT PREIS FROM ARTIKEL WHERE ARTNR = " + artnr;
             ResultSet rss = st.executeQuery(querys);
 
+            rss.next();
             double rbet = rss.getDouble("PREIS");
             rbet *= menge;
 
-            JDBC_Bestellung jb = new JDBC_Bestellung(knr, artnr, menge, rbet);
+            JDBC_Bestellung jb = new JDBC_Bestellung(knr, artnr, bmenge, rbet);
+
+            Statement stnr = connection.createStatement();
+            String querynr = "SELECT * FROM KUBEST";
+            ResultSet rsnr = st.executeQuery(querynr);
+
+            int nr = 1;
+            while(rsnr.next()) {
+                nr++;
+            }
 
             String s1 = "'" + jb.knr + "', ";
             String s2 = "'" + jb.artnr + "', ";
             String s3 = "'" + jb.bmenge + "', ";
-            String s4 = "'" + jb.bdat + "', ";
-            String s5 = "'" + jb.ldat + "', ";
+            String s4 = "TO_DATE('" + jb.bdat + "','dd.mm.yyyy hh24:mi:ss'), ";
+            String s5 = "TO_DATE('" + jb.ldat + "','dd.mm.yyyy hh24:mi:ss'), ";
             String s6 = "'" + 1 + "', ";
-            String s7 = "'" + jb.rbet + "')";
+            String s7 = "'" + String.format("%.2f",jb.rbet) + "')";
 
             Statement sti = connection.createStatement();
-            String queryi = "INSERT INTO KUBEST(KNR, ARTNR, BMENGE, BDAT, LDAT, STATUS, RBET) VALUES " + s1 + s2 + s3 + s4 + s5 + s6 + s7;
+            String queryi = "INSERT INTO KUBEST (BENR, KNR, ARTNR, BMENGE, BDAT, LDAT, STATUS, RBET) VALUES (" + "'" + nr + "', " + s1 + s2 + s3 + s4 + s5 + s6 + s7;
             sti.addBatch(queryi);
             sti.executeBatch();
 
             try {
-                Data.writeData(connection, knr, jb.ldat, jb.bmenge, jb.rbet);
+                Data.writeData(connection, knr, jb.ldat, jb.bmenge, jb.rbet, nr);
             } catch (IOException e) {
                 e.printStackTrace();
             }

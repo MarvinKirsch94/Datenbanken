@@ -15,15 +15,16 @@ import java.sql.Statement;
  */
 public class Data {
 
-    public static void writeData(Connection connection, int knr, String ldat, int bmenge, double rbet) throws IOException, SQLException {
+    public static void writeData(Connection connection, int knr, String ldat, int bmenge, double rbet, int nr) throws IOException, SQLException {
 
         Statement st = connection.createStatement();
 
         String query = "SELECT * FROM KUNDE WHERE KNR = " + knr;
 
         ResultSet rs = st.executeQuery(query);
+        rs.next();
 
-        String fileName = "AB" + knr + "B" + 1;
+        String fileName = "AB" + knr + "B" + nr;
         BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
 
         //Kundenanschrift
