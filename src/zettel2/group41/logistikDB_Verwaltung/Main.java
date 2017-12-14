@@ -1,5 +1,8 @@
 package zettel2.group41.logistikDB_Verwaltung;
 
+import zettel2.group41.erfassung_einer_Kundenbestellung.Data;
+import zettel2.group41.erfassung_einer_Kundenbestellung.JDBC_Bestellung;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -58,7 +61,7 @@ public class Main {
 
                     int artnr = Integer.parseInt(br.readLine());
 
-                    jv.showArtDetailsAndLagerbestand(connection, artnr);
+                    System.out.println("Gesamt Bestand des Artikels beträgt sich auf: " + jv.showArtDetailsAndLagerbestand(connection, artnr));
                     break;
                 case "E":
 
@@ -92,7 +95,37 @@ public class Main {
                     break;
                 case "kb":
 
+                    //TODO aufgabe 6
+                    //a)
+                    System.out.println("Geben sie die Daten für die Bestellung ein.");
+                    System.out.println("Geben sie die artnr ein: ");
+                    int x = Integer.parseInt(br.readLine());
+                    System.out.println("Geben sie die knr ein: ");
+                    int y = Integer.parseInt(br.readLine());
+                    System.out.println("Geben sie die bmenge ein: ");
+                    int z = Integer.parseInt(br.readLine());
+                    //b)
+                    long s1 = jv.showArtDetailsAndLagerbestand(connection, x);
 
+                    if(z <= s1) {
+
+                        //menge von lagerbestanden abziehen und neue zeile Kubest
+                        //bdat jetzt ldat = bdat + 14 tage rbet = bmenge mal preis
+                        //datei auftragsbestätigung kundenanschrift ldat bmenge rbet
+                        //dateiname: ab+knr+b+bnr
+
+                        JDBC_Bestellung.buchen(connection, x, y, z);
+                    } else {
+
+                        //dx = bmenge - s1
+                        //"nicht genügend Lagerbestand des Artikels vorhanden"
+                        int dx = z - (int)s1;
+                        System.out.println("Es sind " + dx + " zu wenig Artikel vorhanden\n!nicht genügend Lagerbestand des Artikels vorhanden!\n");
+                    }
+
+
+                    //eingabe
+                    //bmenge artnr knr
                     break;
                 default:
                     return;
