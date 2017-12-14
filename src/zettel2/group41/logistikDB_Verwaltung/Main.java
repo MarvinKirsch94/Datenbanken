@@ -31,7 +31,8 @@ public class Main {
             System.out.println("(D)  Stammdaten zu Artnr. sowie Laberbestand und Summe dieser.");
             System.out.println("(E)  Erfassung eines neuen Lagerbestands eines Artikels.");
             System.out.println("(F)  Update der Menge eines ausgewählten Lagerbestands.");
-            System.out.println("(insert) Erweitert sofern moeglich die Datenbank mit den \nin ARTIKEL.csv vorhandenen Daten.");
+            System.out.println("(insert) Erweitert sofern moeglich die Datenbank mit den \nin ARTIKEL.csv vorhandenen Daten.\n");
+            System.out.println("(kb) Erfassung einer Kundenbestellung.");
 
             String in;
 
@@ -61,17 +62,37 @@ public class Main {
                     break;
                 case "E":
 
-                    jv.setNewLagerbestandForArtikel(connection);
+                    System.out.println("Geben sie nun die Daten des neuen Lagerbestandes ein.");
+                    System.out.println("Please insert bstnr: ");
+                    int b = Integer.parseInt(br.readLine());
+                    System.out.println("Please insert artnr: ");
+                    int a = Integer.parseInt(br.readLine());
+                    System.out.println("Please insert lnr: ");
+                    int l = Integer.parseInt(br.readLine());
+                    System.out.println("Please insert menge: ");
+                    int m = Integer.parseInt(br.readLine());
+
+                    jv.setNewLagerbestandForArtikel(connection, b, a, l, m);
                     break;
                 case "F":
 
-                    jv.updateMgeOfLagerbestand(connection);
+                    System.out.println("Geben sie nun die Daten ein.");
+                    System.out.println("Geben sie die bst ein: ");
+                    int bstnr = Integer.parseInt(br.readLine());
+                    System.out.println("Geben sie die neue Menge ein: ");
+                    int menge = Integer.parseInt(br.readLine());
+
+                    jv.updateMgeOfLagerbestand(connection, bstnr, menge);
                     break;
                 case "insert":
 
                     ji.readFromCSV(JDBC_Insert.getFileLocation());
 
                     ji.writeToDB(connection);
+                    break;
+                case "kb":
+
+
                     break;
                 default:
                     return;

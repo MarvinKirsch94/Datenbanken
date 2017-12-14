@@ -229,14 +229,14 @@ public class JDBC_Verwaltung {
     }
 
     //E)
-    public void setNewLagerbestandForArtikel(Connection connection) {
+    public void setNewLagerbestandForArtikel(Connection connection, int bstnr, int artnr, int lnr, int menge) {
         try {
 
             Statement st = connection.createStatement();
 
-            //TODO format and input
+            String query = "INSERT INTO LAGERBESTAND (BSTNR, ARTNR, LNR, MENGE) VALUES ('" + bstnr + "', '" + artnr + "', '" + lnr + "', '" + menge + "')";
 
-            //String query = "INSERT INTO LAGERBESTAND (BSTNR, ARTNR, LNR, MENGE) VALUES (" + bstnr + ", " + artnr + ", " + lnr + ", " + menge + ")";
+            st.executeUpdate(query);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -244,9 +244,19 @@ public class JDBC_Verwaltung {
     }
 
     //F)
-    public void updateMgeOfLagerbestand(Connection connection) {
+    public void updateMgeOfLagerbestand(Connection connection, int menge, int artnr) {
 
-        //TODO aufgabe 5 F)
+        try {
+
+            Statement st = connection.createStatement();
+
+            String query = "UPDATE LAGERBESTAND SET MENGE = " + menge + "WHERE BSTNR = " + artnr;
+
+            st.executeUpdate(query);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     //setter and getter
