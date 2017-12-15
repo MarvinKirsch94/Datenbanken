@@ -244,7 +244,7 @@ public class JDBC_Verwaltung {
     }
 
     //F)
-    public void updateMgeOfLagerbestand(Connection connection, int menge, int bstnr) {
+    public void updateMgeOfLagerbestand(Connection connection, int bstnr, int menge) {
 
         try {
 
@@ -252,7 +252,9 @@ public class JDBC_Verwaltung {
 
             String query = "UPDATE LAGERBESTAND SET MENGE = " + menge + "WHERE BSTNR = " + bstnr;
 
-            st.executeUpdate(query);
+            int n = st.executeUpdate(query);
+            System.out.println(n + "\n" + bstnr + "\n" + menge);
+            System.out.println("\n" + query);
 
         } catch (SQLException e) {
             e.printStackTrace();
