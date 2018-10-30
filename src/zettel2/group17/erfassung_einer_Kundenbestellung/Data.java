@@ -1,4 +1,4 @@
-package zettel2.group41.erfassung_einer_Kundenbestellung;
+package zettel2.group17.erfassung_einer_Kundenbestellung;
 
 import java.io.BufferedReader;
 

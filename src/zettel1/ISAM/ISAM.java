@@ -8,17 +8,17 @@ public class ISAM {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
         int keyboard, suchnr;
-        int a = 1;
+        int runtime_var = 1;
 
         int artnr;
         String artbez;
         double preis;
-        String artmen;
-        String artgr;
+        String mge;
+        String kuehl;
 
         ArtikelVerwaltung v = new ArtikelVerwaltung();
 
-        while (a == 1) {
+        while (runtime_var == 1) {
             System.out.println("");
             System.out.println("Verwaltung");
             System.out.println("(1) Neuen Eintrag erstellen.");
@@ -30,18 +30,18 @@ public class ISAM {
 
             switch (keyboard) {
                 case 1:
-                    System.out.println("Artikelnummer");
+                    System.out.println("Artikelnummer: ");
                     artnr = Integer.parseInt(in.readLine());
                     System.out.println("Artikelbezeichnung: ");
                     artbez = in.readLine();
-                    System.out.println("Preis:");
+                    System.out.println("Preis: ");
                     preis = Double.parseDouble(in.readLine());
-                    System.out.println("Stückzahl: ");
-                    artmen = in.readLine();
-                    System.out.println("Steuersatz [F(Food), NF(Non Food)]: ");
-                    artgr = in.readLine();
+                    System.out.println("Mengeneinheit: ");
+                    mge = in.readLine();
+                    System.out.println("Kuehlklasse(TK, KS, NK): ");
+                    kuehl = in.readLine();
 
-                    v.schreiben(artnr, artbez, preis, artmen, artgr);
+                    v.schreiben(artnr, artbez, preis, mge, kuehl);
 
                     v.indexVerwaltung();
                     break;
@@ -62,7 +62,7 @@ public class ISAM {
                 case 4:
                     v.indexVerwaltung();
                     v.indexSchreiben();
-                    a = 0;
+                    runtime_var = 0;
                     break;
                 default:
                     System.out.println("ungültige Eingabe! Bitte erneut eingeben.");

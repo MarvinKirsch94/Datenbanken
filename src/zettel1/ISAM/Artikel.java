@@ -12,8 +12,8 @@ import java.io.Serializable;
         
         
         String artbez;
-        String artme;
-        String artgr;
+        String mge;
+        String kuehl;
         int artnr;
         double preis;
     }

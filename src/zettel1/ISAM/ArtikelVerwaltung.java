@@ -12,7 +12,7 @@ public class ArtikelVerwaltung{
     List <Di> isam = new ArrayList<Di>();  
     
     //Methoden
-    public void schreiben(int artnr, String artbez, double preis, String artme, String artgr){
+    public void schreiben(int artnr, String artbez, double preis, String mge, String kuehl){
         try{
             //FileWriter erstellt datei ROH.CSV und erlaubt Ausgaben in die Datei
             
@@ -26,10 +26,10 @@ public class ArtikelVerwaltung{
             pw.print(';');
             pw.print(preis);
             pw.print(';');
-            pw.print(artme);
+            pw.print(mge);
             pw.print(';');
           
-            pw.print(artgr+System.getProperty("line.separator"));       
+            pw.print(kuehl+System.getProperty("line.separator"));
     
             pw.close();
             
@@ -63,8 +63,8 @@ public class ArtikelVerwaltung{
                 eingabe.artnr = Integer.parseInt(spalte[0]);
                 eingabe.artbez = spalte[1];
                 eingabe.preis = Double.parseDouble(spalte[2]);
-                eingabe.artme = spalte[3];
-                eingabe.artgr = spalte[4];
+                eingabe.mge = spalte[3];
+                eingabe.kuehl = spalte[4];
                 
                 artikel.add(eingabe);
             }
@@ -78,7 +78,7 @@ public class ArtikelVerwaltung{
         Di obj = new Di();
         try{
             
-            FileWriter fw = new FileWriter("ART.IDX",false);
+            FileWriter fw = new FileWriter("ARTIKEL.IDX",false);
             fw.write("OFFSET; ARTNR "+System.getProperty("line.separator"));  
             for (int i = 0;i < isam.size();i++) {
                 obj = isam.get(i);
@@ -92,12 +92,12 @@ public class ArtikelVerwaltung{
 
     public void ausgabe(){
         System.out.println("");
-        System.out.println("ARTNR; ARTBEZ; PREIS; ARTME; ARTGR");
+        System.out.println("ARTNR; ARTBEZ; PREIS; MGE; KUEHL");
         System.out.println("-------------------");
         for (int i =0; i < artikel.size(); i++){
             Artikel art = new Artikel();
             art = artikel.get(i);
-            System.out.println(art.artnr+";"+art.artbez+";"+art.preis+";"+art.artme+";"+art.artgr);
+            System.out.println(art.artnr+";"+art.artbez+";"+art.preis+";"+art.mge +";"+art.kuehl);
         }  
     }
 
@@ -129,7 +129,7 @@ public class ArtikelVerwaltung{
                     System.out.println("");
                     System.out.println("Folgender Artikel wurde gefunden: ");
                     System.out.println("");
-                    System.out.println("ARTNR;ARTBEZ;PREIS;ARTME;ARTGR");
+                    System.out.println("ARTNR;ARTBEZ;PREIS;MGE;KUEHL");
         
                System.out.println(file.readLine());
                     

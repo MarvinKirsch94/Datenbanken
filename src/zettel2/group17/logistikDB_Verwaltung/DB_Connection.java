@@ -1,4 +1,4 @@
-package zettel2.group41.logistikDB_Verwaltung;
+package zettel2.group17.logistikDB_Verwaltung;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

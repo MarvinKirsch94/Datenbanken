@@ -1,4 +1,4 @@
-package zettel2.group41.logistikDB_Verwaltung;
+package zettel2.group17.logistikDB_Verwaltung;
 
 /**
  * Created by Marvin Kirsch on 23.11.2017.
