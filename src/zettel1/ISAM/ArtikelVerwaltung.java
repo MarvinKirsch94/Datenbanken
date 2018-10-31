@@ -14,7 +14,6 @@ public class ArtikelVerwaltung{
     //Methoden
     public void schreiben(int artnr, String artbez, double preis, String mge, String kuehl){
         try{
-            //FileWriter erstellt datei ROH.CSV und erlaubt Ausgaben in die Datei
             
             FileWriter fileW = new FileWriter("ARTIKEL.CSV",true);
             
@@ -85,7 +84,7 @@ public class ArtikelVerwaltung{
                 fw.write(""+obj.offset+";"+obj.artnr+System.getProperty("line.separator"));
             } 
             fw.close();
-        } catch(IOException ioex){;
+        } catch(IOException ioex){
             System.out.println("Es ist folgender IOExpeptionFehler aufgetreten: "+ioex.getMessage());
         }                       
     }
