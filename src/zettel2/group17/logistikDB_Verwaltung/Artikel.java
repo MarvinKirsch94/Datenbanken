@@ -10,19 +10,19 @@ public class Artikel {
 
     private int artnr;
     private String artbez;
-    private int mge;
+    private String mge;
     private double preis;
-    private double steu;
-    private Date edat;
+    private String kuehl;
+    private int anzbo;
 
-    public Artikel(int artnr, String artbez, int mge, double preis, double steu, Date edat) {
+    public Artikel(int artnr, String artbez, String mge, double preis, String kuehl, int anzbo) {
 
         this.artnr = artnr;
         this.artbez = artbez;
         this.mge = mge;
         this.preis = preis;
-        this.steu = steu;
-        this.edat = edat;
+        this.kuehl = kuehl;
+        this.anzbo = anzbo;
     }
 
     public int getArtnr() {
@@ -41,11 +41,11 @@ public class Artikel {
         this.artbez = artbez;
     }
 
-    public int getMge() {
+    public String getMge() {
         return mge;
     }
 
-    public void setMge(int mge) {
+    public void setMge(String mge) {
         this.mge = mge;
     }
 
@@ -57,19 +57,19 @@ public class Artikel {
         this.preis = preis;
     }
 
-    public double getSteu() {
-        return steu;
+    public String getKuehl() {
+        return kuehl;
     }
 
-    public void setSteu(double steu) {
-        this.steu = steu;
+    public void setKuehl(String kuehl) {
+        this.kuehl = kuehl;
     }
 
-    public Date getEdat() {
-        return edat;
+    public int getAnzbo() {
+        return anzbo;
     }
 
-    public void setEdat(Date edat) {
-        this.edat = edat;
+    public void setAnzbo(int anzbo) {
+        this.anzbo = anzbo;
     }
 }

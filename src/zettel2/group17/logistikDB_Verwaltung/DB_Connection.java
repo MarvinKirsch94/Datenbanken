@@ -34,8 +34,8 @@ public class DB_Connection {
         String host = "schelling.nt.fh-koeln.de" + ":";
         String port = "1521" + ":";
         String sid = "xe";
-        String user = "dbprak41";
-        String pwd = "kORO1";
+        String user = "dbprak17";
+        String pwd = "pew_nassword";
         String url = protocol + host + port + sid;
 
         try {

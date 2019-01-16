@@ -1,13 +1,11 @@
 package zettel2.group17.logistikDB_Verwaltung;
 
-import zettel2.group41.erfassung_einer_Kundenbestellung.Data;
-import zettel2.group41.erfassung_einer_Kundenbestellung.JDBC_Bestellung;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 
 /**
@@ -29,13 +27,13 @@ public class Main {
             //Display Menu
             System.out.println("DB Operation Manager" + "\n<----------------------------->\n");
             System.out.println("(A)  Anzeige aller Artikel.");
-            System.out.println("(B)  Anzeige aller Lager.");
+            System.out.println("(B)  Anzeige aller Bestellung.");
             System.out.println("(C)  Anzeige aller Kunden.");
-            System.out.println("(D)  Stammdaten zu Artnr. sowie Laberbestand und Summe dieser.");
-            System.out.println("(E)  Erfassung eines neuen Lagerbestands eines Artikels.");
-            System.out.println("(F)  Update der Menge eines ausgewählten Lagerbestands.");
+            System.out.println("(D)  Update der Werte in Bestellpositionen und Rsum in Bestellung anhand der Bstnr.");
+            System.out.println("(E)  Anzeige von Stammdaten und Bestelldaten zu ARTNR.");
+            System.out.println("(F)  Anzeige von Stammdaten und Artikelbezeichnung zu BSTNR.");
             System.out.println("(insert) Erweitert sofern moeglich die Datenbank mit den \nin ARTIKEL.csv vorhandenen Daten.\n");
-            System.out.println("(kb) Erfassung einer Kundenbestellung.");
+            System.out.println("(ro) Erfassung einer Bestellung mit beliebig vielen Bpositionen.");
 
             String in;
 
@@ -49,7 +47,7 @@ public class Main {
                     break;
                 case "B":
 
-                    jv.showAllLager(connection);
+                    jv.showAllBestellung(connection);
                     break;
                 case "C":
 
@@ -57,35 +55,25 @@ public class Main {
                     break;
                 case "D":
 
-                    System.out.println("Geben sie eine Artikelnr ein zu der sie nähere Informationen wünschen: \n");
+                    System.out.println("Geben sie eine Bestellnummer ein die geupdatet werden soll: \n");
 
-                    int artnr = Integer.parseInt(br.readLine());
+                    int bstnr = Integer.parseInt(br.readLine());
 
-                    System.out.println("Gesamt Bestand des Artikels beträgt sich auf: " + jv.showArtDetailsAndLagerbestand(connection, artnr));
+                    jv.ubdateAllWERTandRSUM(connection, bstnr);
                     break;
                 case "E":
 
-                    System.out.println("Geben sie nun die Daten des neuen Lagerbestandes ein.");
-                    System.out.println("Please insert bstnr: ");
-                    int b = Integer.parseInt(br.readLine());
-                    System.out.println("Please insert artnr: ");
-                    int a = Integer.parseInt(br.readLine());
-                    System.out.println("Please insert lnr: ");
-                    int l = Integer.parseInt(br.readLine());
-                    System.out.println("Please insert menge: ");
-                    int m = Integer.parseInt(br.readLine());
+                    System.out.println("Geben sie eine ARTNR ein zu der sie die Stammdaten und alle Bestelldaten erfahren wollen: ");
+                    int artnr = Integer.parseInt(br.readLine());
 
-                    jv.setNewLagerbestandForArtikel(connection, b, a, l, m);
+                    jv.showAllBposforArtnr(connection, artnr);
                     break;
                 case "F":
 
-                    System.out.println("Geben sie nun die Daten ein.");
-                    System.out.println("Geben sie die bst ein: ");
-                    int bstnr = Integer.parseInt(br.readLine());
-                    System.out.println("Geben sie die neue Menge ein: ");
-                    int menge = Integer.parseInt(br.readLine());
+                    System.out.println("Geben sie eine Bestellnummer ein zu der sie die Stammdaten und alle Bestellpositionen mit Artikelbezeichnung sehen möchten: ");
+                    int bstnrf = Integer.parseInt(br.readLine());
 
-                    jv.updateMgeOfLagerbestand(connection, bstnr, menge);
+                    jv.showAllBposAndArtbezforBstnr(connection, bstnrf);
                     break;
                 case "insert":
 
@@ -93,37 +81,46 @@ public class Main {
 
                     ji.writeToDB(connection);
                     break;
-                case "kb":
+                case "ro":
 
-                    System.out.println("Geben sie die Daten für die Bestellung ein.");
-                    System.out.println("Geben sie die artnr ein: ");
-                    int x = Integer.parseInt(br.readLine());
-                    System.out.println("Geben sie die knr ein: ");
-                    int y = Integer.parseInt(br.readLine());
-                    System.out.println("Geben sie die bmenge ein: ");
-                    int z = Integer.parseInt(br.readLine());
+                    boolean knr_found = false;
+                    int y = 0;
+                    do {
+                        System.out.println("Geben sie eine gültige knr ein: ");
+                        y = Integer.parseInt(br.readLine());
 
-                    long s1 = jv.showArtDetailsAndLagerbestand(connection, x);
+                        jv.showAllKunde(connection);
+                        for (Kunde k : jv.getKunden()) {
+                            if (k.getKnr() == y) knr_found = true;
+                        }
+                    } while (!knr_found);
 
-                    if(z <= s1) {
+                    ArrayList<Integer> artnrn = new ArrayList<>();
+                    ArrayList<Integer> mgen = new ArrayList<>();
 
-                        //menge von lagerbestanden abziehen und neue zeile Kubest
-                        //bdat jetzt ldat = bdat + 14 tage rbet = bmenge mal preis
-                        //datei auftragsbestätigung kundenanschrift ldat bmenge rbet
-                        //dateiname: ab+knr+b+bnr
-
-                        JDBC_Bestellung.buchen(connection, x, y, z);
-                    } else {
-
-                        //dx = bmenge - s1
-                        //"nicht genügend Lagerbestand des Artikels vorhanden"
-                        int dx = z - (int)s1;
-                        System.out.println("Es sind " + dx + " zu wenig Artikel vorhanden\n!nicht genügend Lagerbestand des Artikels vorhanden!\n");
+                    while (true) {
+                        boolean artnr_found = false;
+                        int artnrt = 0;
+                        do {
+                            System.out.println("Geben sie eine gueltige Artnr. ein um eine Bpos anzulegen: ");
+                            artnrt = Integer.parseInt(br.readLine());
+                            jv.showAllArtikel(connection);
+                            for (Artikel a : jv.getArtikel()) {
+                                if (a.getArtnr() == artnrt) artnr_found = true;
+                            }
+                        } while (!artnr_found);
+                        System.out.println("Geben sie eine Menge ein : ");
+                        int mget = Integer.parseInt(br.readLine());
+                        artnrn.add(artnrt);
+                        mgen.add(mget);
+                        System.out.println("Möchten sie die Eingabe beenden [y/n]?");
+                        String ant = br.readLine();
+                        if (ant.equals("y")) break;
                     }
 
+                    System.out.println(jv.registerAnOrder(connection, y, artnrn.stream().mapToInt(i -> i).toArray(), mgen.stream().mapToInt(i -> i).toArray()));
+                    jv.showAllBestellung(connection);
 
-                    //eingabe
-                    //bmenge artnr knr
                     break;
                 default:
                     return;

@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by Marvin Kirsch on 23.11.2017.
@@ -16,8 +15,8 @@ public class JDBC_Verwaltung {
 
     private ArrayList<Artikel> artikel = new ArrayList<>();
     private ArrayList<Kunde> kunden = new ArrayList<>();
-    private ArrayList<Lager> lager = new ArrayList<>();
-    private ArrayList<Lagerbestand> lagerbestaende = new ArrayList<>();
+    private ArrayList<Bestellung> bestellung = new ArrayList<>();
+    private ArrayList<Bpos> bpos = new ArrayList<>();
 
     private SimpleDateFormat dateFormatWrite = new SimpleDateFormat("dd.MM.YYYY - HH.mm.ss");
 
@@ -34,10 +33,10 @@ public class JDBC_Verwaltung {
 
             int artnr;
             String artbez;
-            int mge;
+            String mge;
             double preis;
-            double steu;
-            Date edat;
+            String kuehl;
+            int anzbo;
 
             artikel.clear();
 
@@ -45,26 +44,26 @@ public class JDBC_Verwaltung {
 
                 artnr = rs.getInt("ARTNR");
                 artbez = rs.getString("ARTBEZ");
-                mge = rs.getInt("MGE");
+                mge = rs.getString("MGE");
                 preis = rs.getDouble("PREIS");
-                steu = rs.getDouble("STEU");
-                edat = rs.getDate("EDAT");
+                kuehl = rs.getString("KUEHL");
+                anzbo = rs.getInt("ANZBO");
 
-                Artikel a = new Artikel(artnr, artbez, mge, preis, steu, edat);
+                Artikel a = new Artikel(artnr, artbez, mge, preis, kuehl, anzbo);
 
                 artikel.add(a);
             }
 
-            System.out.println("artnr\tartbez\t\tmge\t\tpreis\t\tsteu\t\tedat");
+            System.out.println("artnr\tartbez\t\tmge\t\tpreis\t\tkuehl\t\tanzbo");
             for(Artikel art : artikel) {
 
-                System.out.format("%d\t\t%s\t%d\t\t%.2f\t\t%.2f\t\t%s\n",
+                System.out.format("%d\t\t%s\t%s\t\t%f\t\t%s\t\t%d\n",
                         art.getArtnr(),
                         (art.getArtbez().length() < 8 ? (art.getArtbez().length() < 4 ? art.getArtbez() + "\t\t" : art.getArtbez() + "\t") : art.getArtbez()),
                         art.getMge(),
                         art.getPreis(),
-                        art.getSteu(),
-                        dateFormatWrite.format(art.getEdat()));
+                        art.getKuehl(),
+                        art.getAnzbo());
             }
             System.out.println("");
 
@@ -75,38 +74,41 @@ public class JDBC_Verwaltung {
     }
 
     //B)
-    public void showAllLager(Connection connection) {
+    public void showAllBestellung(Connection connection) {
 
         try {
 
             Statement st = connection.createStatement();
 
-            ResultSet rs = st.executeQuery("SELECT * FROM LAGER");
+            ResultSet rs = st.executeQuery("SELECT * FROM BESTELLUNG");
 
-            int lnr;
-            String lort;
-            int lplz;
+            int bstnr;
+            int knr;
+            int status;
+            double rsum;
 
-            lager.clear();
+            bestellung.clear();
 
             while(rs.next()) {
 
-                lnr = rs.getInt("LNR");
-                lort = rs.getString("LORT");
-                lplz = rs.getInt("LPLZ");
+                bstnr = rs.getInt("BSTNR");
+                knr = rs.getInt("KNR");
+                status = rs.getInt("STATUS");
+                rsum = rs.getDouble("RSUM");
 
-                Lager l = new Lager(lnr, lort, lplz);
+                Bestellung b = new Bestellung(bstnr, knr, status, rsum);
 
-                lager.add(l);
+                bestellung.add(b);
             }
 
-            System.out.println("lnr\tlort\t\tlplz");
-            for(Lager lr : lager) {
+            System.out.println("bstnr\tknr\tstatus\trsum");
+            for (Bestellung b : bestellung) {
 
-                System.out.format("%d\t%s\t%d\n",
-                        lr.getLnr(),
-                        lr.getLort(),
-                        lr.getLplz());
+                System.out.format("%d\t\t%d\t\t%d\t\t%f\n",
+                        b.getBstnr(),
+                        b.getKnr(),
+                        b.getStatus(),
+                        b.getRsum());
             }
             System.out.println("");
 
@@ -165,100 +167,159 @@ public class JDBC_Verwaltung {
     }
 
     //D)
-    public long showArtDetailsAndLagerbestand(Connection connection, int artnr) {
+    public void ubdateAllWERTandRSUM(Connection connection, int bstnr) {
 
         /*
-        STATEMENT
-        SELECT ARTIKEL.*, LAGERBESTAND.*, LAGER.LPLZ, LAGER.LORT FROM ((ARTIKEL
-        INNER JOIN LAGERBESTAND ON ARTIKEL.ARTNR = LAGERBESTAND.ARTNR)
-        INNER JOIN LAGER ON LAGERBESTAND.LNR = LAGER.LNR) WHERE ARTIKEL.ARTNR = ?;
+        for bstnr soll update auf allen wert der bpos zeilen gemacht werden
+        und in der bestellung dann die zugehörige gesamt summe eingetragen werden
         */
-
-        long s1 = 0;
-
         try {
 
-            Statement st = connection.createStatement();
+            Statement st1 = connection.createStatement();
 
-            String executionstr = "SELECT ARTIKEL.*, LAGERBESTAND.*, LAGER.LPLZ, LAGER.LORT " +
-                    "FROM ((ARTIKEL " +
-                    "INNER JOIN LAGERBESTAND ON ARTIKEL.ARTNR = LAGERBESTAND.ARTNR) " +
-                    "INNER JOIN LAGER ON LAGERBESTAND.LNR = LAGER.LNR) WHERE ARTIKEL.ARTNR = " + artnr;
+            String query1 = "UPDATE " +
+                    "(SELECT BPOS.WERT AS old, ARTIKEL.PREIS * BPOS.MGE AS arg FROM BPOS " +
+                    "INNER JOIN ARTIKEL " +
+                    "ON BPOS.ARTNR = ARTIKEL.ARTNR " +
+                    "WHERE BPOS.BSTNR = " + bstnr + ")B " +
+                    "SET B.old = B.arg";
 
-            ResultSet rs = st.executeQuery(executionstr);
+            int n1 = st1.executeUpdate(query1);
+            System.out.println(n1 + "\n" + bstnr);
+            System.out.println("\n" + query1);
 
-            String artbez;
-            int mge;
-            double preis;
-            double steu;
-            String edat;
-            int bstnr;
-            int lnr;
-            int lplz;
-            String lort;
+            Statement st2 = connection.createStatement();
 
-            System.out.println("artnr\tartbez\tmge\tpreis\tsteu\tedat\t\t\t\t\tbstnr\tmenge\tlnr\tlplz\tlort");
+            String query2 = "SELECT p.BSTNR, SUM(p.WERT) as total " +
+                    "FROM BESTELLUNG b " +
+                    "INNER JOIN BPOS p " +
+                    "ON b.BSTNR = p.BSTNR " +
+                    "WHERE b.BSTNR = " + bstnr + " " +
+                    "GROUP BY p.BSTNR, b.RSUM";
 
-            while(rs.next()) {
+            ResultSet n2 = st2.executeQuery(query2);
+            n2.next();
+            double rsum = n2.getDouble("total");
 
-                //artnr
-                artbez = rs.getString("ARTBEZ");
-                mge = rs.getInt("MGE");
-                preis = rs.getDouble("PREIS");
-                steu = rs.getDouble("STEU");
-                edat = dateFormatWrite.format(rs.getDate("EDAT"));
-                bstnr = rs.getInt("BSTNR");
-                long menge = rs.getLong("MENGE");
-                lnr = rs.getInt("LNR");
-                lplz = rs.getInt("LPLZ");
-                lort = rs.getString("LORT");
+            Statement st3 = connection.createStatement();
+            String query3 = "UPDATE BESTELLUNG b SET b.RSUM = " + rsum + ", b.STATUS = 1 WHERE b.BSTNR = " + bstnr;
 
-                System.out.format("%d\t\t%s\t%d\t%.2f\t%.2f\t%s\t%d\t\t%d\t%d\t%d\t%s\n", artnr, artbez, mge, preis, steu, edat, bstnr, menge, lnr, lplz, lort);
-
-                s1 += menge;
-            }
-
-            System.out.println("");
+            int n3 = st3.executeUpdate(query3);
+            System.out.println(n3 + "\n" + bstnr);
+            System.out.println("\n" + query3);
 
         } catch (SQLException e) {
-
             e.printStackTrace();
         }
-
-        return s1;
     }
 
     //E)
-    public void setNewLagerbestandForArtikel(Connection connection, int bstnr, int artnr, int lnr, int menge) {
+    public void showAllBposforArtnr(Connection connection, int artnr) {
         try {
 
             Statement st = connection.createStatement();
 
-            String query = "INSERT INTO LAGERBESTAND (BSTNR, ARTNR, LNR, MENGE) VALUES ('" + bstnr + "', '" + artnr + "', '" + lnr + "', '" + menge + "')";
+            ResultSet rs = st.executeQuery("SELECT a.ARTNR, a.ARTBEZ, a.MGE, a.PREIS, a.KUEHL, a.ANZBO, b.POSNR, b.BSTNR, b.MGE, b.WERT FROM (ARTIKEL a INNER JOIN BPOS b ON a.ARTNR = b.ARTNR) WHERE a.ARTNR = " + artnr);
 
-            st.executeUpdate(query);
+            int nr = 0;
+            String artbez = "";
+            String mge = "";
+            double preis = 0.0;
+            String kuehl = "";
+            int anzbo = 0;
+            int posnr = 0;
+            int bstnr = 0;
+            int mgeb = 0;
+            double wert = 0.0;
+
+            System.out.println("artnr\tartbez\tmge\tpreis\tkuehl\tanzbo\tposnr\tbstnr\tmgeb\twert");
+            while(rs.next()) {
+
+                nr = rs.getInt("ARTNR");
+                artbez = rs.getString("ARTBEZ");
+                mge = rs.getString("MGE");
+                preis = rs.getDouble("PREIS");
+                kuehl = rs.getString("KUEHL");
+                anzbo = rs.getInt("ANZBO");
+                posnr = rs.getInt("POSNR");
+                bstnr = rs.getInt("BSTNR");
+                mgeb = rs.getInt(10);
+                wert = rs.getDouble("WERT");
+
+                System.out.format("%d\t%s\t%s\t%f\t%s\t%d\t%d\t%d\t%d\t%f\n", nr, artbez, mge, preis, kuehl, anzbo, posnr, bstnr, mgeb, wert);
+            }
 
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
     }
 
     //F)
-    public void updateMgeOfLagerbestand(Connection connection, int bstnr, int menge) {
+    public void showAllBposAndArtbezforBstnr(Connection connection, int bstnr) {
 
         try {
 
             Statement st = connection.createStatement();
 
-            String query = "UPDATE LAGERBESTAND SET MENGE = " + menge + "WHERE BSTNR = " + bstnr;
+            ResultSet rs = st.executeQuery("SELECT BESTELLUNG.KNR,BESTELLUNG.STATUS,BESTELLUNG.RSUM,BPOS.*,ARTIKEL.ARTBEZ FROM (BESTELLUNG INNER JOIN BPOS ON BESTELLUNG.BSTNR = BPOS.BSTNR) INNER JOIN ARTIKEL ON BPOS.ARTNR = ARTIKEL.ARTNR WHERE BESTELLUNG.BSTNR = " + bstnr);
 
-            int n = st.executeUpdate(query);
-            System.out.println(n + "\n" + bstnr + "\n" + menge);
-            System.out.println("\n" + query);
+            String artbez = "";
+            int posnr = 0;
+            int artnr = 0;
+            int knr = 1;
+            int status = 0;
+            double rsum = 0.0;
+            int mge = 0;
+            double wert = 0.0;
+
+            System.out.println("bstnr\tartnr\tartbez\tmge\tposnr\tknr\twert\tstatus\tsum");
+            while (rs.next()) {
+
+                artnr = rs.getInt("ARTNR");
+                artbez = rs.getString("ARTBEZ");
+                mge = rs.getInt("MGE");
+                posnr = rs.getInt("POSNR");
+                knr = rs.getInt("KNR");
+                wert = rs.getDouble("WERT");
+                status = rs.getInt("STATUS");
+                rsum = rs.getDouble("RSUM");
+
+                System.out.format("%d\t%d\t%s\t%d\t%d\t%d\t%f\t%d\t%f\n", bstnr, artnr, artbez, mge, posnr, knr, wert, status, rsum);
+            }
 
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
+    }
+
+    //Aufg 6)
+    public boolean registerAnOrder(Connection connection, int knr, int[] artnrn, int[] mgen) {
+
+        try {
+
+            Bestellung b = new Bestellung(0, knr, 0, 0);
+            Statement st1 = connection.createStatement();
+            st1.executeUpdate("INSERT INTO BESTELLUNG (BSTNR, KNR, STATUS, RSUM, BESTDAT) VALUES (" + b.getBstnr()
+                    + "," + b.getKnr() + "," + b.getStatus() + ",0," + "TO_DATE('" + b.getBdat() + "','dd.mm.yyyy hh24:mi:ss')" + ")");
+            this.showAllBestellung(connection);
+            int bstnr = bestellung.get(bestellung.size() - 1).getBstnr();
+
+            int counter = artnrn.length;
+            for (int i = 0; i < counter; i++) {
+
+                //BPOS anlegen
+                Statement st = connection.createStatement();
+                st.executeUpdate("INSERT INTO BPOS (ARTNR, BSTNR, MGE) VALUES (" + artnrn[i] + "," + bstnr + "," + mgen[i] + ")");
+            }
+            this.ubdateAllWERTandRSUM(connection, bstnr);
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+        return true;
     }
 
     //setter and getter
@@ -279,19 +340,19 @@ public class JDBC_Verwaltung {
         this.kunden = kunden;
     }
 
-    public ArrayList<Lager> getLager() {
-        return lager;
+    public ArrayList<Bestellung> getBestellung() {
+        return bestellung;
     }
 
-    public void setLager(ArrayList<Lager> lager) {
-        this.lager = lager;
+    public void setBestellung(ArrayList<Bestellung> bestellung) {
+        this.bestellung = bestellung;
     }
 
-    public ArrayList<Lagerbestand> getLagerbestaende() {
-        return lagerbestaende;
+    public ArrayList<Bpos> getBpos() {
+        return bpos;
     }
 
-    public void setLagerbestaende(ArrayList<Lagerbestand> lagerbestaende) {
-        this.lagerbestaende = lagerbestaende;
+    public void setBpos(ArrayList<Bpos> bpos) {
+        this.bpos = bpos;
     }
 }

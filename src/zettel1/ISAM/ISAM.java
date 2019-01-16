@@ -2,7 +2,7 @@ package zettel1.ISAM;
 import java.io.*;
 public class ISAM {
 
-    
+
     public static void main(String args[]) throws IOException {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -21,10 +21,10 @@ public class ISAM {
         while (runtime_var == 1) {
             System.out.println("");
             System.out.println("Verwaltung");
-            System.out.println("(1) Neuen Eintrag erstellen.");
-            System.out.println("(2) Alles anzeigen");
-            System.out.println("(3) Suche.");
-            System.out.println("(4) Ende");
+            System.out.println("(1) Neuen Eintrag erstellen?");
+            System.out.println("(2) Alles anzeigen?");
+            System.out.println("(3) Suche?");
+            System.out.println("(4) Ende?");
 
             keyboard = Integer.parseInt(in.readLine());
 
